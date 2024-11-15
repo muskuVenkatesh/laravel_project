@@ -48,8 +48,10 @@ class LanguageController extends Controller
 
             $validatedData = $request->validated();
             $data = $this->languageInterface->createLanguage($validatedData);
+            $token = JWTAuth::fromUser($user);
             return response()->json([
                 'data' => $data,
+                // 'token' => $token,
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -90,6 +92,7 @@ class LanguageController extends Controller
         }
         try {
             $validatedData = $request->validated();
+            $token = JWTAuth::fromUser($user);
             $language = Language::find($id);
             if (!$language) {
                 return response()->json([

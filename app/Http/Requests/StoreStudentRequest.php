@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StoreStudentRequest extends FormRequest
 {
@@ -25,68 +27,68 @@ class StoreStudentRequest extends FormRequest
         // Student Validation Rules,
         'branch_id' => 'required|integer|exists:branches,id',
         'academic_year_id' => 'required|integer|exists:academic_details,id',
-        'roll_no' => 'nullable|string|max:255|present',
+        'roll_no' => 'nullable|string|max:255',
         'stfirst_name' => 'required|string|max:255',
         'middle_name' => 'nullable|string|max:255',
         'stlast_name' => 'required|string|max:255',
-        'fee_book_no' => 'nullable|string|max:255|present',
-        'place_of_birth' => 'nullable|string|max:255|present',
-        'mother_tongue' => 'nullable|max:255|present',
-        'physically_challenge' => 'nullable|string|max:255|present',
-        'neet_applicable' => 'nullable|string|in:yes,no|present',
-        'transport_required' => 'nullable|string|in:yes,no|present',
-        'medium_id' => 'nullable|integer|exists:medium,id|present',
-        'class_id' => 'nullable|integer|exists:classes,id|present',
-        'section_id' => 'nullable|integer|exists:sections,id|present',
-        'group_id' => 'nullable|integer|exists:groups,id|present',
-        'reg_no' => 'nullable|string|max:255|present',
-        'emis_no' => 'nullable|string|max:255|present',
-        'cse_no' => 'nullable|string|max:255|present',
-        'file_no' => 'nullable|string|max:255|present',
-        'admission_no' => 'nullable|string|max:255|present',
-        'admission_date' => 'required|date|present',
-        'application_no' => 'nullable|string|max:255|present',
-        'joining_quota' => 'nullable|string|max:255|present',
-        'first_lang_id' => 'nullable|integer|exists:languages,id|present',
-        'second_lang_id' => 'nullable|integer|exists:languages,id|present',
-        'third_lang_id' => 'nullable|integer|exists:languages,id|present',
+        'fee_book_no' => 'nullable|string|max:255',
+        'place_of_birth' => 'nullable|string|max:255',
+        'mother_tongue' => 'nullable|max:255',
+        'physically_challenge' => 'nullable|string|max:255',
+        'neet_applicable' => 'nullable|string|in:yes,no',
+        'transport_required' => 'nullable|string|in:yes,no',
+        'medium_id' => 'nullable|integer|exists:medium,id',
+        'class_id' => 'nullable|integer|exists:classes,id',
+        'section_id' => 'nullable|integer|exists:sections,id',
+        'group_id' => 'nullable|integer|exists:groups,id',
+        'reg_no' => 'nullable|string|max:255',
+        'emis_no' => 'nullable|string|max:255',
+        'cse_no' => 'nullable|string|max:255',
+        'file_no' => 'nullable|string|max:255',
+        'admission_no' => 'nullable|string|max:255',
+        'admission_date' => 'required|date',
+        'application_no' => 'nullable|string|max:255',
+        'joining_quota' => 'nullable|string|max:255',
+        'first_lang_id' => 'nullable|integer|exists:languages,id',
+        'second_lang_id' => 'nullable|integer|exists:languages,id',
+        'third_lang_id' => 'nullable|integer|exists:languages,id',
         'achievements' => 'nullable|string|max:255',
-        'area_of_interest' => 'nullable|string|max:255|present',
-        'additional_skills' => 'nullable|string|max:255|present',
+        'area_of_interest' => 'nullable|string|max:255',
+        'additional_skills' => 'nullable|string|max:255',
 
 
 
         //Parents validation
-        'pfirst_name' => 'nullable|string|max:255|present',
-        'pmiddle_name' => 'nullable|string|max:255|present',
-        'plast_name' => 'nullable|string|max:255|present',
-        'phone' => 'required|string|max:255|present',
+        'pfirst_name' => 'nullable|string|max:255',
+        'pmiddle_name' => 'nullable|string|max:255',
+        'plast_name' => 'nullable|string|max:255',
+        'phone' => 'required|string|max:255',
         'email' =>'required|string|email|max:255',
-        'date_of_birth' => 'nullable|present',
-        'gender' => 'nullable|present',
-        'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048|present',
-        'aadhaar_card_no' => 'required|string|max:20|unique:user_details,aadhaar_card_no',
-        'pan_card_no' => 'required|string|max:20|unique:user_details,pan_card_no',
+        'date_of_birth' => 'nullable',
+        'gender' => 'nullable',
+        'image' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
+        'aadhaar_card_no' => 'sometimes|string|max:20',
+        'pan_card_no' => 'sometimes|string|max:20',
 
         //Student User Details
-        'stdate_of_birth' => 'nullable||present',
-        'stgender' => 'nullable|present',
-        'stblood_group' => 'nullable|string|max:10|present',
-        'streligion' => 'nullable|string|max:255|present',
-        'stcast' => 'nullable|string|max:255|present',
+        'stdate_of_birth' => 'nullable',
+        'stgender' => 'nullable',
+        'stblood_group' => 'nullable|string|max:10',
+        'streligion' => 'nullable|string|max:255',
+        'stcast' => 'nullable|string|max:255',
         'stimage' => 'nullable|file|mimes:jpeg,png,jpg|max:2048',
-        'staadhaar_card_no' => 'nullable|string|max:20|present',
-        'stpan_card_no' => 'nullable|string|max:20|present',
-        'staddress' => 'nullable|string|max:255|present',
-        'stcity' => 'nullable|string|max:255|present',
-        'ststate' => 'nullable|string|max:255|present',
-        'stcountry' => 'nullable|string|max:255|present',
-        'stpin' => 'nullable|integer|present',
-        'sttmp_address' => 'nullable|string|max:255|present',
-        'sttemp_city' => 'nullable|string|max:255|present',
-        'sttemp_state' => 'nullable|string|max:255|present',
-        'sttemp_pin' => 'nullable|integer|present',
-        'sttemp_country' => 'nullable|string|max:255|present',
+        'staadhaar_card_no' => 'nullable|string|max:20|unique:user_details,aadhaar_card_no',
+        'stpan_card_no' => 'nullable|string|max:20|unique:user_details,pan_card_no',
+        'staddress' => 'nullable|string|max:255',
+        'stcity' => 'nullable|string|max:255',
+        'ststate' => 'nullable|string|max:255',
+        'stcountry' => 'nullable|string|max:255',
+        'stpin' => 'nullable|integer',
+        'sttmp_address' => 'nullable|string|max:255',
+        'sttemp_city' => 'nullable|string|max:255',
+        'sttemp_state' => 'nullable|string|max:255',
+        'sttemp_pin' => 'nullable|integer',
+        'sttemp_country' => 'nullable|string|max:255',
         ];
     }
 
@@ -144,5 +146,16 @@ class StoreStudentRequest extends FormRequest
             'image.string' => 'The image must be a string.',
             'image.max' => 'The image may not be greater than 255 characters.',
         ];
+    }
+
+    protected function failedValidation(Validator $validator)
+    {
+        $errors = [];
+        foreach ($validator->errors()->toArray() as $field => $messages) {
+            $errors[] = [
+                "field" => $field,
+                "message" => $messages[0], 
+            ];
+        }
     }
 }

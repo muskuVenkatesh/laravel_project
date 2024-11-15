@@ -95,7 +95,8 @@ class ExamMarksEntryController extends Controller
     public function downloadExamMarksPDF(Request $request)
     {
         $data = $this->exammarksentryInterface->getExamMarks($request);
-        $pdf = PDF::loadView('ExamMarks', compact('data'));
+        $pdf = PDF::loadView('ExamMarks', compact('data'))
+        ->setPaper('a3', 'landscape');
         return $pdf->download('exam-marks-report.pdf');
     }
 

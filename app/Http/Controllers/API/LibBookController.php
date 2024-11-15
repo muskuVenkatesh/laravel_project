@@ -20,7 +20,7 @@ class LibBookController extends Controller
 
     public function storeLibBook(StoreLibBookRequest $request) {
         $book = $this->libBookRepository->createLibBook($request->validated());
-        return response()->response()->json(['message'=>'Book Created Successfully'],201);
+        return response()->json(['message'=>'Book Created Successfully'],201);
     }
 
     public function GetAll(Request $request) {
@@ -51,7 +51,7 @@ class LibBookController extends Controller
     public function updateBook(UpdateLibBookRequest $request, $id)
     {
         $book = $this->libBookRepository->update($id, $request->validated());
-        return response()->response()->json(['message'=>'Book Updates Successfully'],201);
+        return response()->json(['message'=>'Book Updates Successfully'],201);
     }
 
     public function deleteBook($id){

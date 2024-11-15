@@ -26,13 +26,25 @@ class StudentRepository implements StudentInterface
 
     public function store($data)
     {
-        $parent = $this->parent->where('phone', $data['phone'])->value('id');
+        $parent = $this->parent
+        ->join('user_details', 'user_details.user_id', '=', 'parents.user_id')
+        ->where(function ($query) use ($data) {
+            $query->where('parents.phone', $data['phone'])
+                ->orWhere(function ($q) use ($data) {
+                    $q->where('user_details.aadhaar_card_no', $data['aadhaar_card_no'])
+                        ->orWhere('user_details.pan_card_no', $data['pan_card_no']);
+                });
+        })
+        ->value('parents.id');
         if (empty($parent)) {
             $user_id = $this->user->createUsers($data);
             $parent = $this->parent->createParent($data, $user_id);
             $parentuserdetails = $this->userdetails->createUserDetails($data, $user_id);
         }
-
+        $this->parent->where('id', $parent)
+        ->update([
+            'phone' => $data['phone']
+        ]);
         $student = $this->student->createStudent($data, $parent);
         $users = $this->userdetails->createUserDetailsForStudent($data, $student);
 
@@ -85,7 +97,7 @@ class StudentRepository implements StudentInterface
             ->leftJoin('languages as first_language', 'first_language.id', '=', 'students.first_lang_id')
             ->leftJoin('languages as second_language', 'second_language.id', '=', 'students.second_lang_id')
             ->leftJoin('languages as third_language', 'third_language.id', '=', 'students.third_lang_id')
-            ->join('admission_forms', 'admission_forms.admission_no', '=', 'students.admission_no')
+            ->leftJoin('admission_forms', 'admission_forms.admission_no', '=', 'students.admission_no')
             ->select(
                 'students.*',
                 'mother_tongue_language.name as mother_tongue_name',

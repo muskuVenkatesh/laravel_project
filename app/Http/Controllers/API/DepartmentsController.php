@@ -48,8 +48,9 @@ class DepartmentsController extends Controller
 
             $validatedData = $request->validated();
             $data = $this->departmentInterface->createDepartment($validatedData);
+            $token = JWTAuth::fromUser($user);
             return response()->json([
-                'data' => $data,
+                'message' => 'Department Created Successfully',
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -84,6 +85,7 @@ class DepartmentsController extends Controller
         }
         try {
             $validatedData = $request->validated();
+            $token = JWTAuth::fromUser($user);
             $department = Departments::find($id);
             if (!$department) {
                 throw new DataNotFoundException('Departments Data Not Found');

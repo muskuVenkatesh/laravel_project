@@ -40,9 +40,11 @@ class SchoolController extends Controller
 
             $validatedData = $request->validated();
             $school = $this->schoolinterface->CreateSchool($validatedData);
+            $token = JWTAuth::fromUser($user);
             return response()->json([
                 'message' => 'School created successfully',
                 'school' => $school,
+                'token' => $token,
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -97,6 +99,7 @@ class SchoolController extends Controller
         try {
             $validatedData = $request->validated();
             $schoolId = $request->input('school_id');
+            $token = JWTAuth::fromUser($user);
             $school = Schools::find($schoolId);
             if (!$school) {
                 return response()->json([

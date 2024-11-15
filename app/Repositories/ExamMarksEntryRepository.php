@@ -106,10 +106,9 @@ class ExamMarksEntryRepository implements ExamMarksEntryInterface
             $classInfo = Classes::where('id', $classId)->first(['id', 'name']);
             $sectionInfo = Section::where('id', $sectionId)->first(['id', 'name']);
             $examInfo = Exam::where('id', $examId)->first(['id', 'name']);
-
             $academic_year = AcademicDetail::where('id', $marksData['class_info']['academic_id'])
-            ->select(DB::raw("CONCAT(TO_CHAR(academic_details.start_date, 'Mon YYYY'), ' - ', TO_CHAR(academic_details.end_date, 'Mon YYYY')) as academic_year"))
-            ->first();
+                ->select(DB::raw("CONCAT(TO_CHAR(academic_details.start_date, 'Mon YYYY'), ' - ', TO_CHAR(academic_details.end_date, 'Mon YYYY')) as academic_year"))
+                ->first();
 
             $is_Lock = 0;
             $lockReportDate = ExamConfig::where('section_id', $sectionId)
@@ -141,19 +140,19 @@ class ExamMarksEntryRepository implements ExamMarksEntryInterface
             $percentage = ($totalMarks / $totalPossibleMarks) * 100;
             $result = $percentage >= 35 ? 'Pass' : 'Fail';
 
-            $sectionRank = $this->calculateRank($totalMarks, $sectionId);
-            $classRank = $this->calculateRank($totalMarks, $classId);
+            $sectionRank = $this->calculateRank($totalMarks, $sectionId, false);
+            $classRank = $this->calculateRank($totalMarks, $classId, true);
 
             $attendanceCount = Attendance::where('branch_id', $branch_id)
-            ->where('class_id', $classId)
-            ->where('section_id', $sectionId)
-            ->where(function ($query) use ($entry) {
-                $query->whereJsonContains('present_student_id', $entry->student_id)
-                    ->orWhereJsonContains('absent_student_id', $entry->student_id)
-                    ->orWhere('present_student_id', $entry->student_id)
-                    ->orWhere('absent_student_id', $entry->student_id);
-            })
-            ->get();
+                ->where('class_id', $classId)
+                ->where('section_id', $sectionId)
+                ->where(function ($query) use ($entry) {
+                    $query->whereJsonContains('present_student_id', $entry->student_id)
+                        ->orWhereJsonContains('absent_student_id', $entry->student_id)
+                        ->orWhere('present_student_id', $entry->student_id)
+                        ->orWhere('absent_student_id', $entry->student_id);
+                })
+                ->get();
 
             $presentCount = $attendanceCount->filter(function ($attendance) use ($entry) {
                 $presentIds = is_string($attendance->present_student_id) ? json_decode($attendance->present_student_id, true) : [$attendance->present_student_id];
@@ -186,6 +185,7 @@ class ExamMarksEntryRepository implements ExamMarksEntryInterface
                         'medium_id' => $entry->medium_id,
                         'medium_name' => $entry->medium_name,
                         'exam_id' => $examInfo->id ?? null,
+                        'exam_name' =>$examInfo->name ?? null,
                         'academic_year' => $academic_year->academic_year,
                         'academic_id' => $marksData['class_info']['academic_id'],
                         'entry_type' => $marksData['class_info']['entry_type'],
@@ -198,12 +198,31 @@ class ExamMarksEntryRepository implements ExamMarksEntryInterface
                 ],
             ];
         });
+
         return $data;
     }
 
-    private function calculateRank($totalMarks, $id)
+    private function calculateRank($totalMarks, $id, $isClassRank = true)
     {
-        return rand(1, 30);
+        $query = ExamMarksEntry::query();
+        if ($isClassRank) {
+            $query->whereRaw("exam_marks_entries.marks_data->'class_info'->>'class_id' = ?", [$id]);
+        } else {
+            $query->whereRaw("exam_marks_entries.marks_data->'class_info'->>'section_id' = ?", [$id]);
+        }
+        $studentsMarks = $query->get()->map(function($entry) {
+            $marksData = json_decode($entry->marks_data, true)['marks'] ?? [];
+            $total = 0;
+
+            foreach ($marksData as $mark) {
+                if (!$mark['isabsent']) {
+                    $total += ($mark['internal'] + $mark['external']);
+                }
+            }
+            return $total;
+        })->sortDesc()->values();
+        $rank = $studentsMarks->search($totalMarks) + 1;
+        return $rank;
     }
 
     public function getExamMarkById($id)
@@ -297,13 +316,10 @@ class ExamMarksEntryRepository implements ExamMarksEntryInterface
         if (!$entry) {
             return response()->json(['message' => 'No records found'], 404);
         }
-
         $marksData = json_decode($entry->marks_data, true);
         $classId = $marksData['class_info']['class_id'];
         $sectionId = $marksData['class_info']['section_id'];
         $examId = $marksData['class_info']['exam_id'];
-
-
         $classInfo = Classes::where('id', $classId)->first(['id', 'name']);
         $sectionInfo = Section::where('id', $sectionId)->first(['id', 'name']);
         $examInfo = Exam::where('id', $examId)->first(['id', 'name']);

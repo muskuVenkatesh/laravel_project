@@ -445,6 +445,7 @@ Route::middleware(['auth:api', CheckRole::class . ':admin,superadmin,parent'])->
     Route::get('/get-exam-mark/{id}', [ExamMarksEntryController::class, 'getExamMarkById']);
     Route::post('/update-exam-mark/{id}', [ExamMarksEntryController::class, 'updateExamMarkById']);
     Route::get('/get-student-exam-marks', [ExamMarksEntryController::class, 'getStudentExamMarks']);
+    Route::get('/export-exam-marks', [ExamMarksEntryController::class, 'downlaodExamMarksExcel']);
     Route::get('/exam-marks-download-pdf', [ExamMarksEntryController::class, 'downloadExamMarksPDF']);
 
 
@@ -529,7 +530,8 @@ Route::middleware(['auth:api', CheckRole::class . ':admin,superadmin,parent'])->
 
 });
 Route::post('checktoken', [AuthController::class, 'checkToken']);
-Route::get('/export-exam-marks', [ExamMarksEntryController::class, 'downlaodExamMarksExcel']);
+
+
 
 
 

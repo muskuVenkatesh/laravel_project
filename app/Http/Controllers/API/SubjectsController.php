@@ -50,9 +50,11 @@ class SubjectsController extends Controller
             if ($response['status'] === 'error') {
                 return response()->json(['message' => $response['message']], $response['code']);
             }
+            $token = JWTAuth::fromUser($user);
 
             return response()->json([
                 'data' => $response['data'],
+                'token' => $token,
             ], $response['code']);
 
         } catch (ValidationException $e) {
@@ -123,7 +125,7 @@ class SubjectsController extends Controller
             ], 500);
         }
     }
-
+    
     public function deleteSubject($id)
     {
         if($id)

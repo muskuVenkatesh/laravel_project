@@ -45,6 +45,7 @@ class ClassesController extends Controller
         try {
             $validatedData = $request->validated();
             $data = $this->classInterface->createClass($validatedData);
+            $token = JWTAuth::fromUser($user);
             return response()->json([
                 'data' => $data,
                 'token' => $token,
@@ -84,6 +85,7 @@ class ClassesController extends Controller
         }
         try {
             $validatedData = $request->validated();
+            $token = JWTAuth::fromUser($user);
             $classes = Classes::find($id);
             if (!$classes) {
                 return response()->json([
@@ -93,7 +95,7 @@ class ClassesController extends Controller
             $classes = $this->classInterface->updateClass($validatedData, $id);
 
             return response()->json([
-                'data' => $classes,
+                'message' => 'Class Updated Successfully',
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([

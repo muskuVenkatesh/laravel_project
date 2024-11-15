@@ -48,8 +48,10 @@ class MediumController extends Controller
 
             $validatedData = $request->validated();
             $data = $this->mediumInterface->createMedium($validatedData);
+            $token = JWTAuth::fromUser($user);
             return response()->json([
                 'data' => $data,
+                'token' => $token,
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -87,6 +89,7 @@ class MediumController extends Controller
         }
         try {
             $validatedData = $request->validated();
+            $token = JWTAuth::fromUser($user);
             $subject = Medium::find($id);
             if (!$subject) {
                 return response()->json([

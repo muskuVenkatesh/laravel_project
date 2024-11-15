@@ -21,7 +21,9 @@ class SectionController extends Controller
     public function StoreSection(StoreSectionRequest $request)
     {
         $section = $this->sectionrepository->store($request->validated());
-        return response()->json($section, 201);
+        return response()->json([
+            'message' => 'Class created successfully'
+    ], 201);
     }
 
     public function GetAllSections(Request $request)
